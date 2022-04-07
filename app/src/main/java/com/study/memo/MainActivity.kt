@@ -20,18 +20,20 @@ class MainActivity : AppCompatActivity() {
     val dataModelList = mutableListOf<DataModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var datetext =""
-
         val database = Firebase.database
-        val myRef = database.getReference("mymemo")
-        val listview =findViewById<ListView>(R.id.mainlv)
+        val myRef = database.getReference("myMemo")
 
-        val listAdapter = listviewadapter(dataModelList)
+        val listView = findViewById<ListView>(R.id.mainLv)
 
-        listview.adapter = listAdapter
+        val adapter_list = ListViewAdapter(dataModelList)
+
+        listView.adapter = adapter_list
+
+        Log.d("DataModel------", dataModelList.toString())
 
         myRef.child(Firebase.auth.currentUser!!.uid).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -44,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                     dataModelList.add(dataModel.getValue(DataModel::class.java)!!)
 
                 }
-                listAdapter.notifyDataSetChanged()
+                adapter_list.notifyDataSetChanged()
                 Log.d("DataModel", dataModelList.toString())
 
             }
@@ -55,41 +57,62 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+        val writeButton = findViewById<ImageView>(R.id.writeBtn)
+        writeButton.setOnClickListener {
 
-        val writebutton = findViewById<ImageView>(R.id.writeBtn)
-        writebutton.setOnClickListener {
-            val DialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog,null)
-            val Builder = AlertDialog.Builder(this).setView(DialogView).setTitle("메모 다이얼로그")
-            val alterdialog =Builder.show()
+            val mDialogView = LayoutInflater.from(this).inflate(R.layout.custom_dialog, null)
+            val mBuilder = AlertDialog.Builder(this)
+                .setView(mDialogView)
+                .setTitle("메모 다이얼로그")
 
-            val dateselctbtn =alterdialog.findViewById<Button>(R.id.dateselectbtn)
+            val mAlertDialog = mBuilder.show()
 
-            dateselctbtn?.setOnClickListener{
-                val today =GregorianCalendar()
+
+            val DateSelectBtn = mAlertDialog.findViewById<Button>(R.id.dateSelectBtn)
+
+            var dateText = ""
+
+            DateSelectBtn?.setOnClickListener {
+
+                val today = GregorianCalendar()
                 val year : Int = today.get(Calendar.YEAR)
                 val month : Int = today.get(Calendar.MONTH)
                 val date : Int = today.get(Calendar.DATE)
-                val dlg = DatePickerDialog(this,object : DatePickerDialog.OnDateSetListener{
-                    override fun onDateSet(p0: DatePicker?, p1: Int, p2: Int, p3: Int) {
-                        Log.d("Date","${p1},${p2 +1},${p3}")
-                        dateselctbtn.setText("${p1}년,${p2 +1}월,${p3}일")
 
-                        datetext="${p1}년,${p2 +1}월,${p3}일"
+                val dlg = DatePickerDialog(this, object : DatePickerDialog.OnDateSetListener {
+                    override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int
+                    ) {
+                        Log.d("MAIN", "${year}, ${month + 1}, ${dayOfMonth}")
+                        DateSelectBtn.setText("${year}, ${month + 1}, ${dayOfMonth}")
+
+                        dateText = "${year}, ${month + 1}, ${dayOfMonth}"
                     }
-                },year,month,date)
+
+                }, year, month, date)
                 dlg.show()
+
             }
 
-            val savebtn = alterdialog.findViewById<Button>(R.id.savebtn)
-            savebtn?.setOnClickListener {
-                val Memo =alterdialog.findViewById<EditText>(R.id.memotext)?.text.toString()
+            val saveBtn = mAlertDialog.findViewById<Button>(R.id.saveBtn)
+            saveBtn?.setOnClickListener {
+
+                val healMemo = mAlertDialog.findViewById<EditText>(R.id.healthMemo)?.text.toString()
+
                 val database = Firebase.database
-                val model = DataModel(datetext,Memo)
+                val myRef = database.getReference("myMemo").child(Firebase.auth.currentUser!!.uid)
 
-                myRef.push().setValue(model)
-                alterdialog.dismiss()
+                val model = DataModel(dateText, healMemo)
+
+                myRef
+                    .push()
+                    .setValue(model)
+
+                mAlertDialog.dismiss()
+
             }
+
         }
 
     }
+
 }

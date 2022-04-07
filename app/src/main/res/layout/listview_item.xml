@@ -6,7 +6,7 @@
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/listviewdataarea"
+        android:id="@+id/lv_date"
         android:text="date"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:id="@+id/listviewmemoarea"
+        android:id="@+id/lv_memo"
         android:text="메모 텍스트"
         android:textSize="20sp"
         android:layout_margin="10dp"
