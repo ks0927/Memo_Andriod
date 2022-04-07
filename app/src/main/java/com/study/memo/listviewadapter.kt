@@ -26,12 +26,12 @@ class listviewadapter(val List: MutableList<DataModel>) : BaseAdapter() {
             convertview== LayoutInflater.from(p2?.context).inflate(R.layout.listview_item,p2,false)
 
         }
-        val date = convertview!!.findViewById<TextView>(R.id.listviewdataarea)
-        val memo =convertview!!.findViewById<TextView>(R.id.listviewmemoarea)
+        val date = convertview?.findViewById<TextView>(R.id.listviewdataarea)
+        val memo =convertview?.findViewById<TextView>(R.id.listviewmemoarea)
 
-        date.text =List[p0].date
-        memo.text =List[p0].memo
+        date!!.text =List[p0].date
+        memo!!.text =List[p0].memo
 
-        return convertview
+        return convertview!!
     }
 }

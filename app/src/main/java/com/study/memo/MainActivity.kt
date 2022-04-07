@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -32,25 +33,28 @@ class MainActivity : AppCompatActivity() {
 
         listview.adapter = listAdapter
 
-
-        myRef.addValueEventListener(object : ValueEventListener{
-
+        myRef.child(Firebase.auth.currentUser!!.uid).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                //dataModelList.clear()
-                for(dataModel in snapshot.children){
-                    Log.d("data",dataModel.toString())
-                    dataModelList.add(dataModel.getValue(DataModel::class.java)!!)
-                }
-                //listAdapter.notifyDataSetChanged()
-                Log.d("Datamodel",dataModelList.toString())
-            }
+                Log.d("point", dataModelList.toString())
+                dataModelList.clear()
+                Log.d("point", dataModelList.toString())
 
+                for (dataModel in snapshot.children) {
+                    Log.d("Data", dataModel.toString())
+                    dataModelList.add(dataModel.getValue(DataModel::class.java)!!)
+
+                }
+                listAdapter.notifyDataSetChanged()
+                Log.d("DataModel", dataModelList.toString())
+
+            }
 
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
-        }
-        )
+
+        })
+
 
         val writebutton = findViewById<ImageView>(R.id.writeBtn)
         writebutton.setOnClickListener {
@@ -58,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             val Builder = AlertDialog.Builder(this).setView(DialogView).setTitle("메모 다이얼로그")
             val alterdialog =Builder.show()
 
-            var dateselctbtn =alterdialog.findViewById<Button>(R.id.dateselectbtn)
+            val dateselctbtn =alterdialog.findViewById<Button>(R.id.dateselectbtn)
 
             dateselctbtn?.setOnClickListener{
                 val today =GregorianCalendar()
@@ -80,7 +84,6 @@ class MainActivity : AppCompatActivity() {
             savebtn?.setOnClickListener {
                 val Memo =alterdialog.findViewById<EditText>(R.id.memotext)?.text.toString()
                 val database = Firebase.database
-                val myRef = database.getReference("mymemo")
                 val model = DataModel(datetext,Memo)
 
                 myRef.push().setValue(model)
